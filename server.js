@@ -128,7 +128,7 @@ app.get("/api/matches", async (req, res) => {
   try {
     const today = new Date();
     const end = new Date(today);
-    end.setDate(end.getDate() + 14);
+    end.setDate(end.getDate() + 10);
 
     const endpoint =
       `/matches?competitions=${encodeURIComponent(COMPETITIONS)}` +
