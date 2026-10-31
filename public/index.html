@@ -1,1 +1,270 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BISTOWELHUB | Football Intelligence</title>
+<style>
+:root {
+ --bg:#080e0b;--panel:#111a15;--panel2:#19251e;
+ --green:#2be080;--muted:#91a397;--border:#29382e;
+ --white:#f3f8f4;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--white);font-family:Arial,sans-serif}
+header{height:70px;background:#0e1711;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 6%;position:sticky;top:0;z-index:5}
+.logo{font-size:23px;font-weight:900;letter-spacing:1px}
+.logo span{color:var(--green)}
+.status{font-size:11px;color:var(--green)}
+.container{max-width:1150px;margin:auto;padding:28px 18px}
+.hero{margin-bottom:26px}
+.hero h1{font-size:29px;margin:0 0 10px}
+.hero p{color:var(--muted);line-height:1.6;font-size:14px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:24px 0}
+.stat{background:var(--panel);border:1px solid var(--border);padding:17px;border-radius:12px}
+.stat small{color:var(--muted)}
+.stat h2{font-size:25px;color:var(--green);margin:10px 0 0}
+.heading{display:flex;align-items:center;justify-content:space-between;margin:30px 0 16px}
+.heading h2{font-size:19px}
+button{cursor:pointer;border:0;border-radius:8px;font-weight:bold}
+.refresh{background:var(--panel2);color:var(--green);padding:11px 14px;border:1px solid var(--border)}
+.filters{display:flex;gap:8px;overflow-x:auto;margin-bottom:17px}
+.filter{padding:10px 14px;background:var(--panel);color:var(--muted);border:1px solid var(--border);white-space:nowrap}
+.filter.active{background:#153b26;color:var(--green);border-color:var(--green)}
+.matches{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.match{background:var(--panel);border:1px solid var(--border);padding:18px;border-radius:13px}
+.competition{color:var(--muted);font-size:11px;margin-bottom:20px}
+.teams{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.team{flex:1;text-align:center;font-weight:bold;font-size:13px}
+.team img{width:42px;height:42px;object-fit:contain;display:block;margin:0 auto 9px}
+.vs{color:var(--muted);font-size:12px}
+.matchdate{text-align:center;color:var(--muted);font-size:12px;margin:16px 0}
+.analyze{width:100%;background:var(--green);color:#06140b;padding:13px}
+.empty{grid-column:1/-1;text-align:center;background:var(--panel);padding:35px 15px;border:1px solid var(--border);border-radius:12px;color:var(--muted);line-height:1.7}
+#analysis{display:none;margin-top:28px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px}
+.close{float:right;background:transparent;color:var(--muted);font-size:23px}
+.analysisgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:20px 0}
+.acard{background:var(--panel2);padding:15px;border-radius:10px}
+.acard h3{font-size:12px;color:var(--muted)}
+.big{font-size:24px;color:var(--green);font-weight:bold}
+.form{display:flex;gap:5px;margin-top:12px}
+.form span{width:26px;height:26px;border-radius:5px;display:grid;place-items:center;font-size:11px;font-weight:bold}
+.W{background:#176b3b}.D{background:#6d5a20}.L{background:#792c31}
+.prediction{background:#153b28;border:1px solid #286542;padding:18px;border-radius:10px;margin-top:16px}
+.prediction h3{color:var(--green)}
+.bar{height:7px;background:#29372e;border-radius:10px;overflow:hidden;margin-top:7px}
+.bar span{display:block;height:100%;background:var(--green)}
+.prow{margin:15px 0}
+.plabel{display:flex;justify-content:space-between;font-size:13px}
+.market{display:flex;justify-content:space-between;background:var(--panel2);padding:13px;border-radius:8px;margin-top:8px;font-size:13px}
+.note{font-size:12px;color:var(--muted);line-height:1.6}
+footer{text-align:center;color:var(--muted);padding:28px;border-top:1px solid var(--border);font-size:12px;margin-top:40px}
+@media(max-width:650px){.matches,.stats{grid-template-columns:1fr}.analysisgrid{grid-template-columns:1fr}.hero h1{font-size:24px}header{padding:0 16px}}
+</style>
+</head>
+<body>
+
+<header>
+ <div class="logo">BISTOWEL<span>HUB</span></div>
+ <div class="status">● FOOTBALL INTELLIGENCE</div>
+</header>
+
+<main class="container">
+ <section class="hero">
+  <h1>Football Analysis & Predictions</h1>
+  <p>Explore historical records, team form, match statistics and data-driven football predictions.</p>
+ </section>
+
+ <section class="stats">
+  <div class="stat"><small>Upcoming Matches</small><h2 id="matchCount">--</h2></div>
+  <div class="stat"><small>Competitions</small><h2>04</h2></div>
+  <div class="stat"><small>Data Connection</small><h2 id="apiStatus" style="font-size:17px">CHECKING</h2></div>
+ </section>
+
+ <div class="heading">
+  <h2>Upcoming Matches</h2>
+  <button class="refresh" onclick="loadMatches()">↻ Refresh</button>
+ </div>
+
+ <div class="filters">
+  <button class="filter active" onclick="filterMatches('ALL',this)">All Matches</button>
+  <button class="filter" onclick="filterMatches('WC',this)">World Cup</button>
+  <button class="filter" onclick="filterMatches('CL',this)">Champions League</button>
+  <button class="filter" onclick="filterMatches('BL1',this)">Bundesliga</button>
+  <button class="filter" onclick="filterMatches('DED',this)">Eredivisie</button>
+ </div>
+
+ <div class="matches" id="matches">
+  <div class="empty">Connecting to football database...</div>
+ </div>
+
+ <section id="analysis">
+  <button class="close" onclick="closeAnalysis()">×</button>
+  <h2 id="analysisTitle">Match Analysis</h2>
+  <div id="analysisContent"></div>
+ </section>
+</main>
+
+<footer>
+ BISTOWELHUB © 2026<br><br>
+ Football intelligence powered by match data.<br>
+ Predictions are estimates, not guaranteed results.
+</footer>
+
+<script>
+let allMatches=[];
+let currentFilter="ALL";
+
+function safe(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ })[c]);
+}
+
+async function loadMatches(){
+ const box=document.getElementById("matches");
+ box.innerHTML='<div class="empty">Loading football fixtures...</div>';
+
+ try{
+  const r=await fetch("/api/matches");
+  const d=await r.json();
+  if(!r.ok||!d.success)throw new Error(d.message||"Unable to load matches");
+
+  allMatches=d.matches||[];
+  document.getElementById("matchCount").textContent=allMatches.length;
+  document.getElementById("apiStatus").textContent="ONLINE";
+  document.getElementById("apiStatus").style.color="#2be080";
+  showMatches();
+ }catch(e){
+  document.getElementById("apiStatus").textContent="ERROR";
+  document.getElementById("apiStatus").style.color="#ff6666";
+  box.innerHTML='<div class="empty">'+safe(e.message)+'</div>';
+ }
+}
+
+function filterMatches(code,btn){
+ currentFilter=code;
+ document.querySelectorAll(".filter").forEach(b=>b.classList.remove("active"));
+ btn.classList.add("active");
+ showMatches();
+}
+
+function showMatches(){
+ const box=document.getElementById("matches");
+ const list=allMatches.filter(m=>currentFilter==="ALL"||m.competition?.code===currentFilter);
+
+ if(!list.length){
+  box.innerHTML='<div class="empty">No upcoming matches found for this competition.</div>';
+  return;
+ }
+
+ box.innerHTML=list.map(m=>{
+  const home=m.homeTeam||{};
+  const away=m.awayTeam||{};
+  const date=new Date(m.utcDate).toLocaleString(undefined,{dateStyle:"medium",timeStyle:"short"});
+
+  return `
+   <article class="match">
+    <div class="competition">${safe(m.competition?.name||"Football")}</div>
+    <div class="teams">
+     <div class="team">
+      ${home.crest?`<img src="${safe(home.crest)}" alt="">`:""}
+      ${safe(home.name)}
+     </div>
+     <div class="vs">VS</div>
+     <div class="team">
+      ${away.crest?`<img src="${safe(away.crest)}" alt="">`:""}
+      ${safe(away.name)}
+     </div>
+    </div>
+    <div class="matchdate">${safe(date)}</div>
+    <button class="analyze" onclick="analyzeMatch(${Number(m.id)})">ANALYZE MATCH →</button>
+   </article>`;
+ }).join("");
+}
+
+async function analyzeMatch(id){
+ const section=document.getElementById("analysis");
+ const content=document.getElementById("analysisContent");
+ section.style.display="block";
+ section.scrollIntoView({behavior:"smooth"});
+ content.innerHTML='<div class="empty">Analysing match records...</div>';
+
+ try{
+  const r=await fetch("/api/analyze/"+id);
+  const d=await r.json();
+  if(!r.ok||!d.success)throw new Error(d.message||"Analysis unavailable");
+
+  const a=d.analysis,h=a.homeStats,v=a.awayStats;
+  const p=a.probabilities,hh=a.h2h;
+
+  document.getElementById("analysisTitle").textContent=
+   d.match.homeTeam+" vs "+d.match.awayTeam;
+
+  function form(s){
+   return s.form.length?s.form.map(x=>`<span class="${x}">${x}</span>`).join(""):"No records";
+  }
+
+  function probability(name,value){
+   return `<div class="prow">
+    <div class="plabel"><span>${name}</span><b>${value}%</b></div>
+    <div class="bar"><span style="width:${value}%"></span></div>
+   </div>`;
+  }
+
+  const h2h=hh.played?
+   `${hh.played} meetings: ${hh.homeWins} home wins, ${hh.draws} draws and ${hh.awayWins} away wins.`:
+   "Historical head-to-head records unavailable.";
+
+  content.innerHTML=`
+   <div class="analysisgrid">
+    <div class="acard">
+     <h3>${safe(d.match.homeTeam)} - LAST FIVE</h3>
+     <div class="big">${h.wins}W ${h.draws}D ${h.losses}L</div>
+     <div class="form">${form(h)}</div>
+     <p class="note">Goals scored: ${h.scored}<br>Goals conceded: ${h.conceded}</p>
+    </div>
+    <div class="acard">
+     <h3>${safe(d.match.awayTeam)} - LAST FIVE</h3>
+     <div class="big">${v.wins}W ${v.draws}D ${v.losses}L</div>
+     <div class="form">${form(v)}</div>
+     <p class="note">Goals scored: ${v.scored}<br>Goals conceded: ${v.conceded}</p>
+    </div>
+    <div class="acard" style="grid-column:1/-1">
+     <h3>HEAD-TO-HEAD</h3>
+     <p>${safe(h2h)}</p>
+     <div class="big">${hh.averageGoals??"N/A"}</div>
+     <small>Average goals per meeting</small>
+    </div>
+   </div>
+
+   <div class="prediction">
+    <h3>BISTOWELHUB PREDICTION</h3>
+    <div class="big">${safe(a.prediction.name)}</div>
+    <p>Estimated probability: ${a.prediction.probability}%</p>
+    ${probability("Home Win",p.homeWin)}
+    ${probability("Draw",p.draw)}
+    ${probability("Away Win",p.awayWin)}
+    <hr style="border-color:#365642;margin:20px 0">
+    <h3>GOALS MARKETS</h3>
+    ${a.markets.map(m=>`<div class="market"><span>${safe(m.name)}</span><b>${m.probability}%</b></div>`).join("")}
+    <p class="note">Best estimated market: ${safe(a.bestMarket.name)} (${a.bestMarket.probability}%).</p>
+   </div>
+   <p class="note">Predictions are statistical estimates, not guaranteed outcomes. Missing historical data can affect accuracy.</p>
+  `;
+ }catch(e){
+  content.innerHTML='<div class="empty">'+safe(e.message)+'</div>';
+ }
+}
+
+function closeAnalysis(){
+ document.getElementById("analysis").style.display="none";
+}
+
+loadMatches();
+setInterval(loadMatches,300000);
+</script>
+</body>
+</html>
+
